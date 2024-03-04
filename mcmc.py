@@ -1,4 +1,18 @@
 import numpy as np
+from tqdm import tqdm, trange
+
+# def likelihood(x, beta):
+#     # Standard Normal Distribution
+#     # An underlying assumption of linear regression is that the residuals
+#     # are Gaussian Normal Distributed; often, Standard Normal distributed
+#     return np.exp(-x**2 / 2) / np.sqrt(2 * np.pi)
+
+
+# def proposal_distribution(x, stepsize=0.5):
+#     # Select the proposed state (new guess) from a Gaussian distriution
+#     # centered at the current state, within a Guassian of width `stepsize`
+#     return np.random.normal(x, stepsize)
+
 
 def mcmc_updater(curr_state, curr_likeli, likelihood, proposal_distribution):
     """ Propose a new state and compare the likelihoods
@@ -61,7 +75,7 @@ def metropolis_hastings(
     curr_state = initial_state
     curr_likeli = likelihood(curr_state)
 
-    for i in range(num_samples):
+    for i in tqdm(range(num_samples)):
         # The proposal distribution sampling and comparison
         #   occur within the mcmc_updater routine
         curr_state, curr_likeli = mcmc_updater(
@@ -80,14 +94,14 @@ def metropolis_hastings(
     return samples
 
 
-def likelihood(x):
-    # Standard Normal Distribution
-    # An underlying assumption of linear regression is that the residuals
-    # are Gaussian Normal Distributed; often, Standard Normal distributed
-    return np.exp(-x**2 / 2) / np.sqrt(2 * np.pi)
+# def likelihood(x):
+#     # Standard Normal Distribution
+#     # An underlying assumption of linear regression is that the residuals
+#     # are Gaussian Normal Distributed; often, Standard Normal distributed
+#     return np.exp(-x**2 / 2) / np.sqrt(2 * np.pi)
 
 
-def proposal_distribution(x, stepsize=0.5):
-    # Select the proposed state (new guess) from a Gaussian distriution
-    # centered at the current state, within a Guassian of width `stepsize`
-    return np.random.normal(x, stepsize)
+# def proposal_distribution(x, stepsize=0.5):
+#     # Select the proposed state (new guess) from a Gaussian distriution
+#     # centered at the current state, within a Guassian of width `stepsize`
+#     return np.random.normal(x, stepsize)
