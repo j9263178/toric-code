@@ -8,23 +8,42 @@ import time
 from constants import *
 from mcmc import *
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--ta_", type=float, default=1.)
+parser.add_argument("--tb_", type=float, default=1.)
+parser.add_argument("--L", type=int, default=6)
+parser.add_argument("--num_samples", type=int, default=12000)
+parser.add_argument("--init_type", default="ONES")
+parser.add_argument("--insample_npy", default="")
+parser.add_argument("--insample_index", type=int, default=-1)
+parser.add_argument("--outsample", default="out_sample")
+parser.add_argument("--outp", default="out_p")
+args = parser.parse_args()
 
 def main():
     
-    L = 25
-    ta = 0
-    tb = np.pi/4
-    num_samples = 12000
+    print(args)
+    
+    L = args.L
+    ta = args.ta_*np.pi/4
+    tb = args.tb_*np.pi/4
+    num_samples = args.num_samples
     T = T_()
     op = [Bp(ta, tb), Bm(ta, tb)]   
+    print(op[0])
+    print(op[1])
+    
+    prec = []
     
     def proposal(state):
+        new_state = state.copy()
         loc = np.random.randint(0, 2*L*(L-1))
-        if state[loc] == 1:
-            state[loc] = 0
+        if new_state[loc] == 1:
+            new_state[loc] = 0
         else:
-            state[loc] = 1
-        return state
+            new_state[loc] = 1
+        return new_state
     
     def p(state):
         '''
@@ -64,23 +83,25 @@ def main():
                     i+=2
                     
         norm = dummy & peps
-        
+        # print(norm[L-1,0])
         res = norm.contract_boundary(max_bond=32)
-        print(res)
-        # exit()
+        # print(i)
+        prec.append(res)
         return res
         
-
-    # in_state = np.random.randint(2, size=2*L*(L-1))
-    in_state = np.ones([2*L*(L-1)],dtype = np.int16)
-    print(in_state)
-    samples = metropolis_hastings(p, proposal, in_state, num_samples, burnin=0.2)
-    np.save("samples_test", samples)
+    in_state = []
     
-    # a = time.time()
-    # p(state)
-    # b = time.time()
-    # print(b-a)
+    if args.init_type == 'ONES':
+        in_state = np.ones([2*L*(L-1)],dtype = np.int16)
+    elif args.init_type == 'RAND':
+        in_state = np.random.randint(2, size=2*L*(L-1))
+            
+    print(in_state)
+    
+    samples = metropolis_hastings(p, proposal, in_state, num_samples, burnin=0.2)
+    
+    np.save(args.outsample, samples)
+    np.save(args.outp, prec)
 
     
     

@@ -30,18 +30,23 @@ def mcmc_updater(curr_state, curr_likeli, likelihood, proposal_distribution):
     """
     # Generate a proposal state using the proposal distribution
     # Proposal state == new guess state to be compared to current
+    # print(curr_state)
     proposal_state = proposal_distribution(curr_state)
 
     # Calculate the acceptance criterion
     prop_likeli = likelihood(proposal_state)
     accept_crit = prop_likeli / curr_likeli
 
+    # print("prop_likeli = ", prop_likeli ,"curr_likeli = ", curr_likeli)
+    if np.abs(curr_likeli) < 1e-15:
+      accept_crit = 1
     # Generate a random number between 0 and 1
     accept_threshold = np.random.uniform(0, 1)
 
     # If the acceptance criterion is greater than the random number,
     # accept the proposal state as the current state
     if accept_crit > accept_threshold:
+        # print("accepted.")
         return proposal_state, prop_likeli
 
     # Else
