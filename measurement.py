@@ -29,7 +29,13 @@ def main():
     T3 = T_3()
     T4 = T_4()
     Tc = T_c()
-    op = [Bp(ta, tb), Bm(ta, tb)]   
+    op = [Bp(ta, tb), Bm(ta, tb)]
+    
+    n = np.max([np.max(op[0]),np.max(op[1])])
+    #n = np.max([np.linalg.norm(op[0]),np.linalg.norm(op[1])])
+    op[0]/=n
+    op[1]/=n
+    
     X = np.zeros([2,2])
     X[0,1] =1
     X[1,0] =1
