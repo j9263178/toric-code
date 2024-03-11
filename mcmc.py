@@ -37,9 +37,11 @@ def mcmc_updater(curr_state, curr_likeli, likelihood, proposal_distribution):
     prop_likeli = likelihood(proposal_state)
     accept_crit = prop_likeli / curr_likeli
 
-    # print("prop_likeli = ", prop_likeli ,"curr_likeli = ", curr_likeli)
-    if np.abs(curr_likeli) < 1e-15:
-      accept_crit = 1
+    # print("prop_likeli = ", prop_likeli ,"curr_likeli = ", curr_likeli, "acc crit = ", accept_crit)
+    
+    # if np.abs(curr_likeli) < 1e-15:
+    #   accept_crit = 1
+    
     # Generate a random number between 0 and 1
     accept_threshold = np.random.uniform(0, 1)
 
@@ -72,6 +74,7 @@ def metropolis_hastings(
           samples from the posterior distribution
     """
     samples = []
+    ps = []
 
     # The number of samples in the burn in phase
     idx_burnin = int(burnin * num_samples)
@@ -95,8 +98,9 @@ def metropolis_hastings(
             # Only append after the burnin to avoid including
             #   parts of the chain that are prior-dominated
             samples.append(curr_state)
+            ps.append(curr_likeli)
 
-    return samples
+    return samples, ps
 
 
 # def likelihood(x):

@@ -29,12 +29,19 @@ def main():
     ta = args.ta_*np.pi/4
     tb = args.tb_*np.pi/4
     num_samples = args.num_samples
-    T = T_()
-    op = [Bp(ta, tb), Bm(ta, tb)]   
+    T2 = T_2()
+    T2_up = T_2_up()
+    T3 = T_3()
+    T4 = T_4()
+    op = [Bp(ta, tb), Bm(ta, tb)]
+    
+    n = np.max([np.max(op[0]),np.max(op[1])])
+    #n = np.max([np.linalg.norm(op[0]),np.linalg.norm(op[1])])
+    op[0]/=n
+    op[1]/=n
+    
     print(op[0])
     print(op[1])
-    
-    prec = []
     
     def proposal(state):
         new_state = state.copy()
@@ -55,38 +62,36 @@ def main():
         for y in range(L):
             for x in range(L):
                 if x == 0 and y == 0:
-                    peps[x,y].modify(data = np.expand_dims(top_left(T, op[state[i]]), axis = 2))
+                    peps[x,y].modify(data = np.expand_dims(top_left(T2, op[state[i]]), axis = 2))
                     # print(peps[x,y].data)
                     i+=1
                 elif x == L-1 and y == 0:
-                    peps[x,y].modify(data = np.expand_dims(top_right(T), axis =2))
+                    peps[x,y].modify(data = np.expand_dims(top_right(T2), axis =2))
                 elif y == 0:
-                    peps[x,y].modify(data = np.expand_dims(top(T, op[state[i]]), axis =3))
+                    peps[x,y].modify(data = np.expand_dims(top(T3, op[state[i]]), axis =3))
                     i+=1
                 elif x == 0 and y == L-1:
-                    peps[x,y].modify(data = np.expand_dims(down_left(T, op[state[i]], op[state[i+1]]), axis =2))
+                    peps[x,y].modify(data = np.expand_dims(down_left(T2_up, op[state[i]], op[state[i+1]]), axis =2))
                     i+=2
                 elif x == 0:
-                    peps[x,y].modify(data = np.expand_dims(left(T, op[state[i]], op[state[i+1]]), axis =3))
+                    peps[x,y].modify(data = np.expand_dims(left(T3, op[state[i]], op[state[i+1]]), axis =3))
                     i+=2
                 elif x == L-1 and y == L-1:
-                    peps[x,y].modify(data = np.expand_dims(down_right(T, op[state[i]]), axis =2))
+                    peps[x,y].modify(data = np.expand_dims(down_right(T2, op[state[i]]), axis =2))
                     i+=1   
                 elif x == L-1:
-                    peps[x,y].modify(data = np.expand_dims(right(T, op[state[i]]), axis =3))
+                    peps[x,y].modify(data = np.expand_dims(right(T3, op[state[i]]), axis =3))
                     i+=1
                 elif y == L-1:
-                    peps[x,y].modify(data =  np.expand_dims(down(T, op[state[i]], op[state[i+1]]), axis =3))
+                    peps[x,y].modify(data =  np.expand_dims(down(T3, op[state[i]], op[state[i+1]]), axis =3))
                     i+=2
                 else:                
-                    peps[x,y].modify(data = np.expand_dims(bulk(T, op[state[i]], op[state[i+1]]), axis =4))
+                    peps[x,y].modify(data = np.expand_dims(bulk(T4, op[state[i]], op[state[i+1]]), axis =4))
                     i+=2
                     
         norm = dummy & peps
-        # print(norm[L-1,0])
         res = norm.contract_boundary(max_bond=32)
-        # print(i)
-        prec.append(res)
+        # print(res)
         return res
         
     in_state = []
@@ -98,10 +103,10 @@ def main():
             
     print(in_state)
     
-    samples = metropolis_hastings(p, proposal, in_state, num_samples, burnin=0.2)
-    
+    samples, ps = metropolis_hastings(p, proposal, in_state, num_samples, burnin=0.2)
+    # print(ps)
     np.save(args.outsample, samples)
-    np.save(args.outp, prec)
+    np.save(args.outp, ps)
 
     
     
