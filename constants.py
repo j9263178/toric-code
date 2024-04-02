@@ -63,7 +63,30 @@ def Bm(ta, tb):
     Bm[1,1] = np.sin(ta+tb)**2
     
     return Bm
+
+
+def Wp(beta):
     
+    Bp = np.zeros([2,2])
+    
+    Bp[0,0] = np.exp(-beta)
+    Bp[0,1] = np.exp(beta)
+    Bp[1,0] = np.exp(beta)
+    Bp[1,1] = np.exp(-beta)
+    
+    return Bp
+    
+def Wm(beta):
+    
+    Bm = np.zeros([2,2])
+    
+    Bm[0,0] = np.exp(beta)
+    Bm[0,1] = np.exp(-beta)
+    Bm[1,0] = np.exp(-beta)
+    Bm[1,1] = np.exp(beta)
+    
+    return Bm
+
     
 def bulk(T, B1,B2):
     return np.einsum('ijdl,iu,jr->urdl',T, B1, B2)
